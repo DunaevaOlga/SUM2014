@@ -34,7 +34,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
     CreateWindow(WND_CLASS_NAME,
     "Title",
     WS_OVERLAPPEDWINDOW,
-    2000, 100,
+    0, 100,
     800, 800,
     NULL,
     NULL,
@@ -56,12 +56,14 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
 
 void DrawEye (HDC hDC, int Xm, int Ym, int Xc, int Yc, int W, int H, int R)
 {
+  static HANDLE hCons;
+
   int xx, yy;
   float 
     len, si, co,
     ratio = (float)W / H;
 
-  len = sqrt(SQR(Xc - Xm) + SQR((Yc - Ym) * ratio));
+  len = (float)sqrt(SQR(Xc - Xm) + SQR((Yc - Ym) * ratio));
 
   if ( len == 0)
     si = 0, co = 0;
@@ -71,21 +73,19 @@ void DrawEye (HDC hDC, int Xm, int Ym, int Xc, int Yc, int W, int H, int R)
   SelectObject(hDC, GetStockObject(DC_PEN));
   SelectObject(hDC, GetStockObject(DC_BRUSH));
 
+    SetDCPenColor(hDC, RGB(0, 0, 0));
+  SetDCBrushColor(hDC, RGB(255, 255, 255));
+
+  Ellipse(hDC, Xc - W / 2, Yc - H / 2, Xc + W / 2, (Yc + H / 2));
  
   if (len > W / 2 - R)
-    len = W / 2 - R;
-  xx = Xc + co * len;
-  yy = Yc + si * len / ratio;
+    len = (float)(W / 2 - R);
+  xx = (int)(Xc + co * len);
+  yy = (int)(Yc + si * len / ratio);
 
-  SetDCBrushColor(hDC, RGB(255, 255, 255));
-  Ellipse(hDC, xx - R, yy - R / ratio, xx + R, yy + R / ratio);
-
-  SetDCPenColor(hDC, RGB(255, 255, 255));
   SetDCBrushColor(hDC, RGB(0, 0, 0));
-
-  Ellipse(hDC, Xc - W / 2, Yc - H / 2, Xc + W / 2, Yc + H / 2);
-
-}                        
+  Ellipse(hDC, (int)(xx - R), (int)(yy - R / ratio), (int)(xx + R), (int)(yy + R / ratio));
+}
 
 
 float ro( void )
@@ -95,33 +95,46 @@ float ro( void )
 
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
-  HDC hDC, hMemDC, hMemDC1;
+  HDC hDC/*, hMemDC, hMemDC1*/;
   PAINTSTRUCT pc;
   RECT rc;
   POINT pt;
-
-  int x0, y0, x1, y1, i;
 
   switch(Msg)
   {
   case WM_CREATE:
     SetTimer(hWnd, 30, 50, NULL);
     return 0;
- 
+  case WM_TIMER:
+    hDC = BeginPaint(hWnd, &pc);
+    GetClientRect(hWnd, &rc);
+
+    srand(30);
+    SelectObject(hDC, GetStockObject(NULL_PEN));
+  
+
+    GetCursorPos(&pt);
+    ScreenToClient(hWnd, &pt);
+     
+    DrawEye(hDC, pt.x, pt.y, (int)(ro() * rc.right), (int)(ro() * rc.bottom), 400, 400, 100);
+  
+    EndPaint(hWnd, &pc);
+    
+    return 0;
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &pc);
     GetClientRect(hWnd, &rc);
 
     
    
-    srand(30);
+    srand(5);
     SelectObject(hDC, GetStockObject(NULL_PEN));
    /* SelectObject(hDC, GetStockObject(DC_BRUSH)); */
 
     GetCursorPos(&pt);
     ScreenToClient(hWnd, &pt);
      
-    DrawEye(hDC, pt.x, pt.y, ro() * rc.right, ro() * rc.bottom, rand() % 20, rand() % 20, rand() % 20);
+    DrawEye(hDC, pt.x, pt.y, (int)(ro() * rc.right), (int)(ro() * rc.bottom), 400, 400, 100);
   
     EndPaint(hWnd, &pc);
     return 0;

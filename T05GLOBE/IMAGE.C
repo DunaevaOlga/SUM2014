@@ -1,5 +1,5 @@
  /* FILENAME: IMAGE.C
- * PROGRAMMER: SS3
+ * PROGRAMMER: OD6
  * PURPOSE: Image handle functions
  * LAST UPDATE: 06.06.2014
  */

@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <math.h>
+#pragma warning(disable: 4244)
 #define SQR(X) ((X) * (X))
 #define WND_CLASS_NAME "My window class"
 
@@ -34,7 +35,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
     CreateWindow(WND_CLASS_NAME,
     "Title",
     WS_OVERLAPPEDWINDOW,
-    0, 100,
+    1920, 100,
     800, 800,
     NULL,
     NULL,
@@ -73,7 +74,7 @@ void DrawEye (HDC hDC, int Xm, int Ym, int Xc, int Yc, int W, int H, int R)
   SelectObject(hDC, GetStockObject(DC_PEN));
   SelectObject(hDC, GetStockObject(DC_BRUSH));
 
-    SetDCPenColor(hDC, RGB(0, 0, 0));
+  SetDCPenColor(hDC, RGB(0, 0, 0));
   SetDCBrushColor(hDC, RGB(255, 255, 255));
 
   Ellipse(hDC, Xc - W / 2, Yc - H / 2, Xc + W / 2, (Yc + H / 2));
@@ -84,7 +85,7 @@ void DrawEye (HDC hDC, int Xm, int Ym, int Xc, int Yc, int W, int H, int R)
   yy = (int)(Yc + si * len / ratio);
 
   SetDCBrushColor(hDC, RGB(0, 0, 0));
-  Ellipse(hDC, (int)(xx - R), (int)(yy - R / ratio), (int)(xx + R), (int)(yy + R / ratio));
+  Ellipse(hDC, (int)(xx - R), (int)(yy - R / ratio), (int)(xx + R), (int)(yy + R / ratio));   
 }
 
 
@@ -99,42 +100,32 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   PAINTSTRUCT pc;
   RECT rc;
   POINT pt;
+  INT n, a;
 
   switch(Msg)
   {
   case WM_CREATE:
     SetTimer(hWnd, 30, 50, NULL);
     return 0;
+
   case WM_TIMER:
-    hDC = BeginPaint(hWnd, &pc);
-    GetClientRect(hWnd, &rc);
-
-    srand(30);
-    SelectObject(hDC, GetStockObject(NULL_PEN));
-  
-
-    GetCursorPos(&pt);
-    ScreenToClient(hWnd, &pt);
-     
-    DrawEye(hDC, pt.x, pt.y, (int)(ro() * rc.right), (int)(ro() * rc.bottom), 400, 400, 100);
-  
-    EndPaint(hWnd, &pc);
-    
+    InvalidateRect(hWnd, NULL, FALSE);
     return 0;
+
+
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &pc);
     GetClientRect(hWnd, &rc);
-
-    
-   
     srand(5);
+
     SelectObject(hDC, GetStockObject(NULL_PEN));
-   /* SelectObject(hDC, GetStockObject(DC_BRUSH)); */
 
     GetCursorPos(&pt);
     ScreenToClient(hWnd, &pt);
-     
-    DrawEye(hDC, pt.x, pt.y, (int)(ro() * rc.right), (int)(ro() * rc.bottom), 400, 400, 100);
+    
+    n = 4;
+    while (n-- > 0)
+      DrawEye(hDC, pt.x, pt.y, (int)(ro() * rc.right), (int)(ro() * rc.bottom), (rand() % rc.right ) + 30, rand() % rc.bottom), 30);
   
     EndPaint(hWnd, &pc);
     return 0;

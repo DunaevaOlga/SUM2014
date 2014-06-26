@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <math.h>
+#include "IMAGE.H"
 #pragma warning(disable: 4244)
 #define Pi  3.14159265358979323846
 #define WND_CLASS_NAME "My window class"
@@ -73,7 +74,7 @@ void DrawGlobe (HDC hDC, int R, int W, int H, int T)
   for (fi = 0; fi <=  Pi * 2 ; fi += 0.05)
     for (teta = 0; teta <= Pi  ; teta += 0.05)
       if (R * sin(teta) * cos(fi + T) > 0)
-        SetPixel(hDC, R * sin(fi + T)* sin(teta) + W / 2 , R * cos(teta) + H / 2, RGB(0, 255, 0));
+        SetPixel(hDC, R * sin(fi + T )* sin(teta) + W / 2 , R * cos(teta) + H / 2, RGB(0, 255, 0));
   
 }
 
@@ -85,6 +86,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   RECT rc;
   POINT pt;
   SYSTEMTIME st;
+  static int R = 0;
   static int W, H;
   static HDC hMemDC;
   static HBITMAP hBm;
@@ -108,9 +110,12 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     ReleaseDC(hWnd, hDC);
     SelectObject(hMemDC, hBm);
   case WM_TIMER:
+    hDC = GetDC(hWnd);
+    hMemDC = CreateCompatibleDC;
     InvalidateRect(hWnd, NULL, FALSE);
     return 0;
-
+  case WM_MOUSEWHEEL:
+    R += (short)HIWORD(wParam) / 3;
 
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &ps);
@@ -119,7 +124,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     GetClientRect(hWnd, &rc);
  
     GetLocalTime(&st);
-    DrawGlobe(hMemDC, 0.3 * rc.right , rc.right, rc.bottom, st.wMilliseconds);
+    DrawGlobe(hMemDC, 0.3 * rc.right + R, rc.right, rc.bottom, st.wMilliseconds);
                                                             
   
     EndPaint(hWnd, &ps);

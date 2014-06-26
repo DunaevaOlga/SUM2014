@@ -1,8 +1,4 @@
-/* FILENAME: DEF.H
- * PROGRAMMER: SS3
- * PURPOSE: Default definitions.
- * LAST UPDATE: 06.06.2014
- */
+
 
 #ifndef __DEF_H_
 #define __DEF_H_
